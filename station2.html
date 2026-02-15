@@ -2,187 +2,185 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>거실역</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<title>Metro Display</title>
 
 <style>
-body{
-    margin:0;
-    background:#111;
-    color:white;
-    font-family:Arial, sans-serif;
+body {
+    margin: 0;
+    background: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
 }
 
-.container{
-    width:100%;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
+/* 상단 */
+.topbar {
+    background: #e5e5e5;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    font-weight: bold;
 }
 
-/* 상단 바 */
-.topbar{
-    background:#fff;
-    color:#000;
-    padding:10px 20px;
-    font-weight:bold;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+/* 메인 */
+.main {
+    display: flex;
+    height: calc(100vh - 60px);
 }
 
-/* 메인 영역 */
-.main{
-    flex:1;
-    display:flex;
-    background:#000;
+/* 열차 영역 */
+.left {
+    flex: 2;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 
-/* 왼쪽 숫자 영역 */
-.left{
-    flex:1;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    border-right:4px solid #222;
+.train-container {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
 }
 
-.minutes{
-    font-family:'Orbitron', sans-serif;
-    font-size:160px;
-    color:#ffcc00;
+.train {
+    color: #ffc400;
+    font-size: 200px;
+    font-weight: bold;
+    width: 250px;
+    text-align: center;
 }
 
-/* 오른쪽 인포 영역 */
-.right{
-    width:40%;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    padding:30px;
+/* 오른쪽 안내 */
+.right {
+    flex: 1;
+    background: black;
+    color: white;
+    padding: 40px;
+    box-sizing: border-box;
+    border-left: 2px solid #222;
 }
 
-.info{
-    font-size:22px;
-    line-height:1.6;
+.info {
+    font-size: 28px;
 }
 
-.clock{
-    text-align:right;
-    font-size:26px;
-    font-weight:bold;
+/* 제어 패널 */
+.control-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #222;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
 }
 
-.blink{
-    animation: blink 1s infinite;
+.control-panel input {
+    padding: 6px;
+    width: 80px;
 }
 
-@keyframes blink{
-    50% { opacity:0.2; }
+.control-panel button {
+    padding: 6px 10px;
+    margin-left: 5px;
+    cursor: pointer;
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
-
 <div class="topbar">
-<div>Ⓜ 1호선 거실역</div>
-<div id="clock"></div>
+    <div>🚇 1호선 거실역</div>
+    <div id="clock"></div>
 </div>
 
 <div class="main">
+    <div class="left">
+        <div class="train-container" id="trainContainer">
+            <div class="train" id="train1">10</div>
+            <div class="train" id="train2">5</div>
+        </div>
+    </div>
 
-<div class="left">
-<div class="minutes" id="minutes">--</div>
-</div>
-
-<div class="right">
-<div class="info" id="infoText">
-정상 운행 중
-</div>
-
-<div>
-<button onclick="changeInfo()">안내문 변경</button>
-</div>
+    <div class="right">
+        <div class="info">주방 → 이동 중</div>
+    </div>
 </div>
 
-</div>
+<div class="control-panel">
+    탑승 시간(초):
+    <input type="number" id="timeInput" value="10">
+    <button onclick="setTime()">설정</button>
 </div>
 
 <script>
+let trainTimes = [10, 5];
+let interval;
 
-// ===== 설정 =====
-if (!localStorage.getItem("metroConfig")) {
-    localStorage.setItem("metroConfig", JSON.stringify({
-        travelTime: 35
-    }));
-}
-
-function getConfig(){
-    return JSON.parse(localStorage.getItem("metroConfig"));
-}
-
-const stations = ["거실","주방","서재"];
-const currentStation = "거실";
-
-// ===== 시간 표시 =====
-function updateClock(){
+/* 시계 */
+function updateClock() {
     const now = new Date();
-    document.getElementById("clock").innerText =
-        now.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+    const h = now.getHours();
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const p = h >= 12 ? "오후" : "오전";
+    const dh = h % 12 || 12;
+    document.getElementById("clock").innerText = p + " " + dh + ":" + m;
 }
-setInterval(updateClock,1000);
+setInterval(updateClock, 1000);
 updateClock();
 
-// ===== 열차 계산 =====
-function updateBoard(){
-    const travel = getConfig().travelTime;
-    const totalLoop = travel * stations.length;
+/* 열차 표시 업데이트 */
+function renderTrains() {
+    document.getElementById("train1").innerText = trainTimes[0];
+    document.getElementById("train2").innerText = trainTimes[1];
+}
 
-    const now = Math.floor(Date.now()/1000);
-    const position = now % totalLoop;
-
-    const segment = Math.floor(position / travel);
-    const nextStation = stations[segment];
-    const timeLeft = travel - (position % travel);
-
-    const minutesEl = document.getElementById("minutes");
-    const infoEl = document.getElementById("infoText");
-
-    if(nextStation === currentStation){
-
-        if(timeLeft <= 5){
-            minutesEl.innerText = "0";
-            minutesEl.classList.add("blink");
-            infoEl.innerText = "곧 도착";
+/* 카운트 시작 */
+function startCountdown() {
+    clearInterval(interval);
+    interval = setInterval(() => {
+        trainTimes[0]--;
+        if (trainTimes[0] <= 0) {
+            slideTrains();
         }
-        else{
-            minutesEl.innerText = "0";
-            minutesEl.classList.remove("blink");
-            infoEl.innerText = "접근 중 (" + timeLeft + "초)";
-        }
+        renderTrains();
+    }, 1000);
+}
 
-    } else {
-        const min = Math.ceil(timeLeft/60);
-        minutesEl.innerText = min;
-        minutesEl.classList.remove("blink");
-        infoEl.innerText = nextStation + " → 이동 중";
+/* 슬라이드 효과 */
+function slideTrains() {
+    const container = document.getElementById("trainContainer");
+    container.style.transform = "translateX(-250px)";
+
+    setTimeout(() => {
+        container.style.transition = "none";
+        container.style.transform = "translateX(0)";
+
+        trainTimes.shift(); // 앞 제거
+        trainTimes.push(Math.floor(Math.random() * 10) + 5); // 새 시간 추가
+
+        renderTrains();
+
+        void container.offsetWidth;
+        container.style.transition = "transform 0.6s ease-in-out";
+    }, 600);
+}
+
+/* 제어 패널 시간 변경 */
+function setTime() {
+    const newTime = parseInt(document.getElementById("timeInput").value);
+    if (!isNaN(newTime) && newTime > 0) {
+        trainTimes[0] = newTime;
+        renderTrains();
     }
 }
 
-setInterval(updateBoard,1000);
-updateBoard();
-
-// ===== 안내문 수동 변경 =====
-function changeInfo(){
-    const text = prompt("안내문 입력");
-    if(text){
-        document.getElementById("infoText").innerText = text;
-    }
-}
-
+renderTrains();
+startCountdown();
 </script>
 
 </body>
