@@ -3,64 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <title>거실역</title>
+
 <style>
 body{
     margin:0;
     background:#000;
     color:#fff;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:'Courier New', monospace;
     display:flex;
     justify-content:center;
     align-items:center;
     height:100vh;
 }
 .board{
-    width:95%;
-    max-width:1000px;
+    width:90%;
+    max-width:900px;
 }
 .header{
-    font-size:26px;
-    border-bottom:2px solid #444;
+    font-size:24px;
+    border-bottom:2px solid #333;
     padding-bottom:10px;
     margin-bottom:20px;
 }
 .row{
     display:flex;
     justify-content:space-between;
-    padding:18px 0;
+    padding:20px 0;
     border-bottom:1px solid #222;
-    font-size:28px;
+    font-size:32px;
 }
 .arriving{
     animation: blink 1s infinite;
 }
 @keyframes blink{
-    50% { opacity:0.3; }
+    50% { opacity:0.2; }
 }
 </style>
 </head>
 <body>
 
 <div class="board">
-
 <div class="header">1호선 | 거실역</div>
 
 <div class="row">
-<div>주방 방면</div>
-<div id="train1"></div>
-</div>
-
-<div class="row">
-<div>서재 방면</div>
-<div id="train2"></div>
+<div>열차 상태</div>
+<div id="status"></div>
 </div>
 
 </div>
 
 <script>
+
+// 기본 설정
 if (!localStorage.getItem("metroConfig")) {
     localStorage.setItem("metroConfig", JSON.stringify({
-        interval: 180,
         travelTime: 35
     }));
 }
@@ -69,43 +65,46 @@ function getConfig(){
     return JSON.parse(localStorage.getItem("metroConfig"));
 }
 
-function updateStatus(id, time){
-    const el = document.getElementById(id);
+const stations = ["거실", "주방", "서재"];
+const currentStation = "거실";
 
-    if(time <= 5){
-        el.innerText = "곧 도착";
-        el.classList.add("arriving");
-    }
-    else if(time <= 30){
-        el.innerText = "접근 중";
-        el.classList.remove("arriving");
-    }
-    else{
-        el.innerText = Math.floor(time/60) + "분";
+function updateBoard(){
+    const travel = getConfig().travelTime;
+    const totalLoop = travel * stations.length;
+
+    const now = Math.floor(Date.now()/1000);
+    const position = now % totalLoop;
+
+    const segment = Math.floor(position / travel);
+    const nextStation = stations[segment];
+    const timeLeft = travel - (position % travel);
+
+    const el = document.getElementById("status");
+
+    if(nextStation === currentStation){
+
+        if(timeLeft <= 5){
+            el.innerText = "곧 도착";
+            el.classList.add("arriving");
+        }
+        else if(timeLeft <= 30){
+            el.innerText = "접근 중 (" + timeLeft + "초)";
+            el.classList.remove("arriving");
+        }
+        else{
+            el.innerText = timeLeft + "초 후 도착";
+            el.classList.remove("arriving");
+        }
+
+    } else {
+        el.innerText = nextStation + "역 이동 중";
         el.classList.remove("arriving");
     }
 }
 
-function start(){
-    const config = getConfig();
-    const interval = config.interval;
+setInterval(updateBoard,1000);
+updateBoard();
 
-    let t1 = interval;
-    let t2 = interval + 90;
-
-    setInterval(()=>{
-        t1--;
-        t2--;
-
-        updateStatus("train1", t1);
-        updateStatus("train2", t2);
-
-        if(t1 <= 0) t1 = interval;
-        if(t2 <= 0) t2 = interval;
-    },1000);
-}
-
-start();
 </script>
 
 </body>
