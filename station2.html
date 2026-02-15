@@ -1,62 +1,80 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="style.css">
-<script src="config.js"></script>
-<title>거실역</title>
-</head>
-<body>
-
-<div class="board">
-
-    <div class="header">
-        <div class="line">1호선</div>
-        <div class="station">거실역</div>
-        <div class="time" id="clock"></div>
-    </div>
-
-    <div class="section">
-        <div>다음 열차 도착</div>
-        <div class="big" id="countdown"></div>
-    </div>
-
-    <div class="section">
-        <div>구간 이동 시간</div>
-        <div id="travelTime"></div>
-    </div>
-
-</div>
-
-<script>
-function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").innerText =
-        now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-}
-setInterval(updateClock,1000);
-updateClock();
-
-function startCountdown(){
-    const config = getConfig();
-    let interval = config.interval;
-    let travel = config.travelTime;
-
-    document.getElementById("travelTime").innerText = travel + "초";
-
-    let timeLeft = interval;
-
-    setInterval(()=>{
-        timeLeft--;
-        if(timeLeft <= 0){
-            timeLeft = interval;
-        }
-        document.getElementById("countdown").innerText = timeLeft + "초";
-    },1000);
-}
-
-startCountdown();
-</script>
-
-</body>
-</html>
+diff --git a/station2.html b/station2.html
+index 818c1f5647e0cb4c4a557e82289acf82e5af4524..4a5657d17eb709b5217145898613eef5a55bc6ea 100644
+--- a/station2.html
++++ b/station2.html
+@@ -1,62 +1,42 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+ <meta charset="UTF-8">
+ <link rel="stylesheet" href="style.css">
+ <script src="config.js"></script>
+-<title>거실역</title>
++<title>주방역</title>
+ </head>
+ <body>
+ 
+ <div class="board">
+-
+     <div class="header">
+-        <div class="line">1호선</div>
+-        <div class="station">거실역</div>
++        <div class="line-badge">M1</div>
++        <div class="station" id="stationName">주방역 · Cuisine</div>
+         <div class="time" id="clock"></div>
+     </div>
+ 
++    <div class="destination">Direction · <span id="destinationName">서재역</span></div>
++
+     <div class="section">
+-        <div>다음 열차 도착</div>
++        <div>다음 열차 · Prochain train</div>
+         <div class="big" id="countdown"></div>
+     </div>
+ 
+     <div class="section">
+-        <div>구간 이동 시간</div>
++        <div>구간 이동 시간 · Temps de trajet</div>
+         <div id="travelTime"></div>
+     </div>
+ 
++    <div class="footer-note">RATP 스타일 홈 메트로 데모</div>
+ </div>
+ 
+ <script>
+-function updateClock(){
+-    const now = new Date();
+-    document.getElementById("clock").innerText =
+-        now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+-}
+-setInterval(updateClock,1000);
+-updateClock();
+-
+-function startCountdown(){
+-    const config = getConfig();
+-    let interval = config.interval;
+-    let travel = config.travelTime;
+-
+-    document.getElementById("travelTime").innerText = travel + "초";
+-
+-    let timeLeft = interval;
+-
+-    setInterval(()=>{
+-        timeLeft--;
+-        if(timeLeft <= 0){
+-            timeLeft = interval;
+-        }
+-        document.getElementById("countdown").innerText = timeLeft + "초";
+-    },1000);
+-}
+-
+-startCountdown();
++startStationBoard({
++    stationName: '주방역 · Cuisine',
++    destinationName: '서재역',
++    locale: 'fr-FR'
++});
+ </script>
+ 
+ </body>
+ </html>
