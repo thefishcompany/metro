@@ -1,79 +1,112 @@
-diff --git a/station1.html b/station1.html
-index 818c1f5647e0cb4c4a557e82289acf82e5af4524..3bb5448a1b2b98cfba5e977e3abb3e8b0327772f 100644
---- a/station1.html
-+++ b/station1.html
-@@ -1,62 +1,42 @@
- <!DOCTYPE html>
- <html>
- <head>
- <meta charset="UTF-8">
- <link rel="stylesheet" href="style.css">
- <script src="config.js"></script>
- <title>거실역</title>
- </head>
- <body>
- 
- <div class="board">
--
-     <div class="header">
--        <div class="line">1호선</div>
--        <div class="station">거실역</div>
-+        <div class="line-badge">M1</div>
-+        <div class="station" id="stationName">거실역 · Salon</div>
-         <div class="time" id="clock"></div>
-     </div>
- 
-+    <div class="destination">Direction · <span id="destinationName">주방역</span></div>
-+
-     <div class="section">
--        <div>다음 열차 도착</div>
-+        <div>다음 열차 · Prochain train</div>
-         <div class="big" id="countdown"></div>
-     </div>
- 
-     <div class="section">
--        <div>구간 이동 시간</div>
-+        <div>구간 이동 시간 · Temps de trajet</div>
-         <div id="travelTime"></div>
-     </div>
- 
-+    <div class="footer-note">RATP 스타일 홈 메트로 데모</div>
- </div>
- 
- <script>
--function updateClock(){
--    const now = new Date();
--    document.getElementById("clock").innerText =
--        now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
--}
--setInterval(updateClock,1000);
--updateClock();
--
--function startCountdown(){
--    const config = getConfig();
--    let interval = config.interval;
--    let travel = config.travelTime;
--
--    document.getElementById("travelTime").innerText = travel + "초";
--
--    let timeLeft = interval;
--
--    setInterval(()=>{
--        timeLeft--;
--        if(timeLeft <= 0){
--            timeLeft = interval;
--        }
--        document.getElementById("countdown").innerText = timeLeft + "초";
--    },1000);
--}
--
--startCountdown();
-+startStationBoard({
-+    stationName: '거실역 · Salon',
-+    destinationName: '주방역',
-+    locale: 'fr-FR'
-+});
- </script>
- 
- </body>
- </html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>거실역</title>
+<style>
+body{
+    margin:0;
+    background:#000;
+    color:#fff;
+    font-family:Arial, Helvetica, sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.board{
+    width:95%;
+    max-width:1000px;
+}
+.header{
+    font-size:26px;
+    border-bottom:2px solid #444;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+.row{
+    display:flex;
+    justify-content:space-between;
+    padding:18px 0;
+    border-bottom:1px solid #222;
+    font-size:28px;
+}
+.arriving{
+    animation: blink 1s infinite;
+}
+@keyframes blink{
+    50% { opacity:0.3; }
+}
+</style>
+</head>
+<body>
+
+<div class="board">
+
+<div class="header">1호선 | 거실역</div>
+
+<div class="row">
+<div>주방 방면</div>
+<div id="train1"></div>
+</div>
+
+<div class="row">
+<div>서재 방면</div>
+<div id="train2"></div>
+</div>
+
+</div>
+
+<script>
+if (!localStorage.getItem("metroConfig")) {
+    localStorage.setItem("metroConfig", JSON.stringify({
+        interval: 180,
+        travelTime: 35
+    }));
+}
+
+function getConfig(){
+    return JSON.parse(localStorage.getItem("metroConfig"));
+}
+
+function updateStatus(id, time){
+    const el = document.getElementById(id);
+
+    if(time <= 5){
+        el.innerText = "곧 도착";
+        el.classList.add("arriving");
+    }
+    else if(time <= 30){
+        el.innerText = "접근 중";
+        el.classList.remove("arriving");
+    }
+    else{
+        el.innerText = Math.floor(time/60) + "분";
+        el.classList.remove("arriving");
+    }
+}
+
+function start(){
+    const config = getConfig();
+    const interval = config.interval;
+
+    let t1 = interval;
+    let t2 = interval + 90;
+
+    setInterval(()=>{
+        t1--;
+        t2--;
+
+        updateStatus("train1", t1);
+        updateStatus("train2", t2);
+
+        if(t1 <= 0) t1 = interval;
+        if(t2 <= 0) t2 = interval;
+    },1000);
+}
+
+start();
+</script>
+
+</body>
+</html>
