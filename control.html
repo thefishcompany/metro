@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Control Panel</title>
+<script src="config.js"></script>
+<style>
+body{
+    background:white;
+    color:black;
+    font-family:Montserrat,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.panel{
+    border:6px solid black;
+    padding:50px;
+    width:400px;
+}
+input{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    font-size:18px;
+}
+button{
+    background:black;
+    color:white;
+    padding:10px;
+    border:none;
+    width:100%;
+    font-size:18px;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>CONTROLEUR</h2>
+
+    <label>Train Interval (sec)</label>
+    <input type="number" id="interval">
+
+    <label>Travel Time (sec)</label>
+    <input type="number" id="travel">
+
+    <button onclick="save()">SAVE</button>
+</div>
+
+<script>
+function load(){
+    const config = getConfig();
+    document.getElementById("interval").value = config.interval;
+    document.getElementById("travel").value = config.travelTime;
+}
+
+function save(){
+    const newConfig = {
+        interval: parseInt(document.getElementById("interval").value),
+        travelTime: parseInt(document.getElementById("travel").value)
+    };
+    setConfig(newConfig);
+    alert("Updated!");
+}
+
+load();
+</script>
+
+</body>
+</html>
