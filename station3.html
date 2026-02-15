@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Station Salon</title>
+<script src="config.js"></script>
+<style>
+body{
+    margin:0;
+    background:white;
+    color:black;
+    font-family:Montserrat,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.board{
+    width:80%;
+    border:6px solid black;
+    padding:40px;
+}
+.header{
+    font-size:40px;
+    font-weight:bold;
+    border-bottom:3px solid black;
+    padding-bottom:15px;
+    margin-bottom:20px;
+}
+.train{
+    display:flex;
+    justify-content:space-between;
+    font-size:28px;
+    margin:20px 0;
+}
+.big{
+    font-size:70px;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="board">
+    <div class="header">LIGNE 1 - SALON</div>
+
+    <div class="train">
+        <div>PROCHAIN TRAIN</div>
+        <div class="big" id="countdown"></div>
+    </div>
+
+    <div class="train">
+        <div>Temps de trajet</div>
+        <div id="travel"></div>
+    </div>
+</div>
+
+<script>
+function startCountdown(){
+    const config = getConfig();
+    let interval = config.interval;
+    let travel = config.travelTime;
+
+    document.getElementById("travel").innerText = travel + " SEC";
+
+    let timeLeft = interval;
+
+    setInterval(()=>{
+        timeLeft--;
+        if(timeLeft <= 0){
+            timeLeft = interval;
+        }
+        document.getElementById("countdown").innerText = timeLeft + "s";
+    },1000);
+}
+
+startCountdown();
+</script>
+
+</body>
+</html>
