@@ -1,59 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>운영자</title>
-<style>
-body{
-    background:#000;
-    color:#fff;
-    font-family:Arial;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-.box{ width:400px; }
-input{
-    width:100%;
-    padding:15px;
-    margin:10px 0;
-    background:#111;
-    color:#fff;
-    border:1px solid #444;
-}
-button{
-    width:100%;
-    padding:15px;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Metro Control Center</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #f0f2f5; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: #666; }
+        input { width: 90%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { 
+            width: 100%; padding: 15px; background: #007bff; color: white; 
+            border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; margin-top: 20px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
 </head>
 <body>
+    <h1>🚇 Metro Control System</h1>
+    <div class="grid">
+        <div class="card">
+            <h2>Station 1</h2>
+            <div class="input-group">
+                <label>행선지 1</label><input type="text" id="s1d1" value="LA DÉFENSE">
+                <label>남은 시간</label><input type="number" id="s1t1" value="2">
+            </div>
+            <div class="input-group">
+                <label>행선지 2</label><input type="text" id="s1d2" value="VINCENNES">
+                <label>남은 시간</label><input type="number" id="s1t2" value="7">
+            </div>
+        </div>
+        <div class="card">
+            <h2>Station 2</h2>
+            <div class="input-group">
+                <label>행선지 1</label><input type="text" id="s2d1" value="CHÂTELET">
+                <label>남은 시간</label><input type="number" id="s2t1" value="3">
+            </div>
+            <div class="input-group">
+                <label>행선지 2</label><input type="text" id="s2d2" value="MAIRIE DE LILAS">
+                <label>남은 시간</label><input type="number" id="s2t2" value="5">
+            </div>
+        </div>
+        <div class="card">
+            <h2>Station 3</h2>
+            <div class="input-group">
+                <label>행선지 1</label><input type="text" id="s3d1" value="PONT DE SÈVRES">
+                <label>남은 시간</label><input type="number" id="s3t1" value="1">
+            </div>
+            <div class="input-group">
+                <label>행선지 2</label><input type="text" id="s3d2" value="BOULOGNE">
+                <label>남은 시간</label><input type="number" id="s3t2" value="12">
+            </div>
+        </div>
+    </div>
+    <button onclick="updateAll()">전광판 실시간 업데이트</button>
 
-<div class="box">
-<h2>이동시간 설정 (초)</h2>
-<input type="number" id="travel">
-<button onclick="save()">저장</button>
-</div>
-
-<script>
-if (!localStorage.getItem("metroConfig")) {
-    localStorage.setItem("metroConfig", JSON.stringify({
-        travelTime: 35
-    }));
-}
-
-const config = JSON.parse(localStorage.getItem("metroConfig"));
-document.getElementById("travel").value = config.travelTime;
-
-function save(){
-    const travel = parseInt(document.getElementById("travel").value);
-    localStorage.setItem("metroConfig", JSON.stringify({
-        travelTime: travel
-    }));
-    alert("변경 완료");
-}
-</script>
-
+    <script>
+        function updateAll() {
+            const data = {
+                s1: { dest1: document.getElementById('s1d1').value, time1: document.getElementById('s1t1').value, dest2: document.getElementById('s1d2').value, time2: document.getElementById('s1t2').value },
+                s2: { dest1: document.getElementById('s2d1').value, time1: document.getElementById('s2t1').value, dest2: document.getElementById('s2d2').value, time2: document.getElementById('s2t2').value },
+                s3: { dest1: document.getElementById('s3d1').value, time1: document.getElementById('s3t1').value, dest2: document.getElementById('s3d2').value, time2: document.getElementById('s3t2').value }
+            };
+            localStorage.setItem('metroData', JSON.stringify(data));
+            console.log("Data Sent!");
+        }
+    </script>
 </body>
 </html>
