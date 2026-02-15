@@ -2,47 +2,20 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Maison Metro Hub</title>
 <link rel="stylesheet" href="style.css">
-<style>
-body{
-    background:white;
-    color:black;
-    font-family:Montserrat, sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-.container{
-    border:5px solid black;
-    padding:50px;
-    text-align:center;
-}
-button{
-    background:black;
-    color:white;
-    border:none;
-    padding:15px 40px;
-    margin:15px;
-    font-size:20px;
-    cursor:pointer;
-}
-button:hover{
-    background:#333;
-}
-</style>
+<title>집 지하철 허브</title>
 </head>
 <body>
-<div class="container">
-    <h1>MAISON METRO</h1>
-    <p>Choisissez votre station</p>
 
-    <button onclick="location.href='station1.html'">STATION SALON</button>
-    <button onclick="location.href='station2.html'">STATION CUISINE</button>
-    <button onclick="location.href='station3.html'">STATION BUREAU</button>
+<div class="board" style="text-align:center;">
+    <div class="line">집 지하철 시스템</div>
+    <br>
+    <button onclick="location.href='station1.html'">거실역</button>
+    <button onclick="location.href='station2.html'">주방역</button>
+    <button onclick="location.href='station3.html'">서재역</button>
     <br><br>
-    <button onclick="location.href='control.html'">CONTROLE</button>
+    <button onclick="location.href='control.html'">운영자 모드</button>
 </div>
+
 </body>
 </html>
