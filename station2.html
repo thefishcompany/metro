@@ -1,212 +1,111 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Metro Display</title>
+    <meta charset="UTF-8">
+    <title>Paris Metro - Station 1</title>
+    <style>
+        /* 파리 지하철 전광판 스타일 */
+        body {
+            background-color: #050505;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
 
-<style>
-body{
-    margin:0;
-    background:#111;
-    font-family:Arial, Helvetica, sans-serif;
-    overflow:hidden;
-}
+        .station-name {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border: 2px solid white;
+            padding: 5px 20px;
+        }
 
-/* 상단 */
-.topbar{
-    background:#e5e5e5;
-    height:60px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 20px;
-    font-weight:bold;
-}
+        .display-board {
+            background-color: #111;
+            border: 8px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            width: 500px;
+            box-shadow: inset 0 0 20px #000;
+        }
 
-/* 메인 */
-.main{
-    display:flex;
-    height:calc(100vh - 60px);
-}
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px dashed #444;
+        }
 
-/* 열차 전광판 */
-.left{
-    flex:2;
-    background:black;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    overflow:hidden;
-}
+        .row:last-child { border-bottom: none; }
 
-.train-wrapper{
-    width:500px;
-    overflow:hidden;
-}
+        .destination {
+            color: #ff9d00; /* 파리 지하철 특유의 오렌지색 */
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 157, 0, 0.7);
+        }
 
-.train-track{
-    display:flex;
-    transition:transform 0.5s ease;
-}
+        .time {
+            color: #ff9d00;
+            font-size: 2.2rem;
+        }
 
-.train{
-    width:250px;
-    text-align:center;
-    font-size:220px;
-    font-weight:bold;
-    color:#ffc400;
-}
+        /* 1분 미만일 때 깜빡이는 효과 */
+        .blink {
+            animation: blink-animation 1s steps(5, start) infinite;
+        }
 
-/* 오른쪽 안내 */
-.right{
-    flex:1;
-    background:black;
-    border-left:2px solid #222;
-    color:white;
-    padding:40px;
-}
-
-.info{
-    font-size:28px;
-}
-
-/* 컨트롤 패널 */
-.control-panel{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    background:#222;
-    padding:20px;
-    border-radius:10px;
-    color:white;
-    width:260px;
-}
-
-.control-panel input{
-    width:100%;
-    margin-bottom:10px;
-    padding:6px;
-}
-
-.control-panel button{
-    width:100%;
-    padding:8px;
-    margin-bottom:10px;
-    cursor:pointer;
-}
-</style>
+        @keyframes blink-animation {
+            to { visibility: hidden; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="topbar">
-    <div>🚇 1호선 거실역</div>
-    <div id="clock"></div>
-</div>
+    <div class="station-name">STATION 1</div>
 
-<div class="main">
-    <div class="left">
-        <div class="train-wrapper">
-            <div class="train-track" id="track">
-                <div class="train">1</div>
-                <div class="train">2</div>
-            </div>
+    <div class="display-board">
+        <div class="row">
+            <span class="destination" id="dest1">LOADING...</span>
+            <span class="time" id="time1">-- min</span>
+        </div>
+        <div class="row">
+            <span class="destination" id="dest2">LOADING...</span>
+            <span class="time" id="time2">-- min</span>
         </div>
     </div>
 
-    <div class="right">
-        <div class="info" id="infoText">주방 → 이동 중</div>
-    </div>
-</div>
+    <script>
+        const STATION_ID = 's1'; // station2는 's2', station3은 's3'로 수정
 
-<div class="control-panel">
-    <b>안내문 변경</b>
-    <input type="text" id="infoInput" placeholder="안내문 입력">
-    <button onclick="changeInfo()">안내 적용</button>
+        function updateDisplay() {
+            const data = JSON.parse(localStorage.getItem('metroData') || '{}');
+            const myStation = data[STATION_ID];
 
-    <b>1번 열차 탑승시간(초)</b>
-    <input type="number" id="currentTimeInput" value="10">
-    <button onclick="setCurrentTime()">시간 설정</button>
-
-    <b>새 열차 기본시간(초)</b>
-    <input type="number" id="nextTimeInput" value="15">
-    <button onclick="setNextTime()">기본시간 설정</button>
-</div>
-
-<script>
-let currentTime = 10;
-let defaultNextTime = 15;
-let interval;
-const track = document.getElementById("track");
-
-/* 시계 */
-function updateClock(){
-    const now = new Date();
-    const h = now.getHours();
-    const m = now.getMinutes().toString().padStart(2,'0');
-    const p = h >= 12 ? "오후" : "오전";
-    const dh = h % 12 || 12;
-    document.getElementById("clock").innerText = p+" "+dh+":"+m;
-}
-setInterval(updateClock,1000);
-updateClock();
-
-/* 카운트다운 (표시는 안함) */
-function start(){
-    clearInterval(interval);
-    interval = setInterval(()=>{
-        if(currentTime > 0){
-            currentTime--;
+            if (myStation) {
+                document.getElementById('dest1').innerText = myStation.dest1;
+                document.getElementById('dest2').innerText = myStation.dest2;
+                
+                // 시간 표시 및 0분일 때 깜빡임 처리
+                const t1 = myStation.time1;
+                const t2 = myStation.time2;
+                
+                document.getElementById('time1').innerText = t1 <= 0 ? "ARRIVÉE" : t1 + " min";
+                document.getElementById('time1').className = t1 <= 0 ? "time blink" : "time";
+                
+                document.getElementById('time2').innerText = t2 <= 0 ? "ARRIVÉE" : t2 + " min";
+                document.getElementById('time2').className = t2 <= 0 ? "time blink" : "time";
+            }
         }
-        if(currentTime === 0){
-            slide();
-        }
-    },1000);
-}
 
-/* 슬라이드 */
-function slide(){
-    clearInterval(interval);
-    track.style.transform = "translateX(-250px)";
-
-    setTimeout(()=>{
-        currentTime = defaultNextTime;
-
-        track.style.transition = "none";
-        track.style.transform = "translateX(0)";
-
-        void track.offsetWidth;
-        track.style.transition = "transform 0.5s ease";
-
-        start();
-    },500);
-}
-
-/* 컨트롤 기능 */
-function changeInfo(){
-    const text = document.getElementById("infoInput").value;
-    if(text.trim() !== ""){
-        document.getElementById("infoText").innerText = text;
-    }
-}
-
-function setCurrentTime(){
-    const val = parseInt(document.getElementById("currentTimeInput").value);
-    if(!isNaN(val) && val>0){
-        currentTime = val;
-        start();
-    }
-}
-
-function setNextTime(){
-    const val = parseInt(document.getElementById("nextTimeInput").value);
-    if(!isNaN(val) && val>0){
-        defaultNextTime = val;
-    }
-}
-
-start();
-</script>
-
+        window.addEventListener('storage', updateDisplay);
+        updateDisplay();
+    </script>
 </body>
 </html>
