@@ -2,120 +2,63 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Metro SIEL Advanced Controller</title>
+    <title>Metro SIEL Cloud Controller</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --ratp-yellow: #ffbe00; --ratp-dark: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; background: #e0e0e0; padding: 20px; }
-        .header { background: var(--ratp-dark); color: var(--ratp-yellow); padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 10px solid var(--ratp-yellow); }
-        .mode-selector { margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; border: 1px solid #ddd; }
-        .manual-input { display: block; }
-        .auto-info { display: none; color: #007bff; font-weight: bold; padding: 10px 0; }
-        textarea { width: 95%; height: 60px; margin-top: 10px; resize: none; }
-        input[type="number"] { width: 60px; padding: 5px; }
-        .status-badge { font-size: 12px; padding: 3px 8px; border-radius: 10px; background: #eee; }
-        button.main-btn { width: 100%; padding: 20px; background: var(--ratp-dark); color: var(--ratp-yellow); font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; border: none; border-radius: 10px; }
-        button.main-btn:hover { background: #333; }
+        body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .card { background: white; padding: 15px; border-radius: 12px; border-top: 10px solid #ffbe00; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .mode-sel { background: #eee; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        textarea { width: 95%; height: 50px; }
+        input[type="number"] { width: 50px; }
+        button { width: 100%; padding: 20px; background: #1a1a1a; color: #ffbe00; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; border: none; }
     </style>
 </head>
 <body>
+    <h1>🚇 Ligne 1 - 클라우드 관제실</h1>
+    <div class="grid" id="grid"></div>
+    <button onclick="publish()">전 노선 업데이트 송출 (Firebase)</button>
 
-<div class="header">
-    <h1>🚇 Ligne 1 - 통합 관제 시스템</h1>
-    <div id="global-status">시스템 가동 중</div>
-</div>
-
-<div class="grid" id="control-grid">
     <script>
+        // [필수] 본인의 Firebase 설정으로 교체하세요!
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0XGb9qUq7K4Z5SVUE6IQsh-UmXwMI25M",
+            databaseURL: "https://metro-dfaf8-default-rtdb.firebaseio.com",
+            projectId: "metro-dfaf8",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         for(let i=1; i<=3; i++) {
-            document.write(`
-                <div class="card" id="card-s${i}">
-                    <h2>Station ${i} <span class="status-badge" id="mode-badge-s${i}">수동 모드</span></h2>
-                    
-                    <div class="mode-selector">
-                        <label><input type="radio" name="mode-s${i}" value="manual" checked onchange="toggleMode(${i})"> 수동 제어</label>
-                        <label><input type="radio" name="mode-s${i}" value="auto" onchange="toggleMode(${i})"> 자동 운행</label>
+            document.getElementById('grid').innerHTML += `
+                <div class="card">
+                    <h3>역 ${i}</h3>
+                    <div class="mode-sel">
+                        <label><input type="radio" name="m${i}" value="manual" checked> 수동</label>
+                        <label><input type="radio" name="m${i}" value="auto"> 자동</label>
                     </div>
-
-                    <div id="manual-s${i}" class="manual-input">
-                        <p>1차 열차: <input type="number" id="s${i}t1" value="2"> 분 후</p>
-                        <p>2차 열차: <input type="number" id="s${i}t2" value="7"> 분 후</p>
-                    </div>
-
-                    <div id="auto-s${i}" class="auto-info">
-                        🔄 자동 시뮬레이션 작동 중...
-                        <p>현재 대기 시간: <span id="s${i}auto-val">--</span>분</p>
-                    </div>
-
-                    <p>공지사항:</p>
-                    <textarea id="s${i}msg">Trafic normal sur l'ensemble de la ligne.</textarea>
+                    <p>1차: <input type="number" id="s${i}t1" value="2">분 | 2차: <input type="number" id="s${i}t2" value="7">분</p>
+                    <textarea id="s${i}msg">Trafic normal.</textarea>
                 </div>
-            `);
+            `;
+        }
+
+        function publish() {
+            const data = {};
+            const now = Date.now();
+            for(let i=1; i<=3; i++) {
+                const mode = document.querySelector(`input[name="m${i}"]:checked`).value;
+                data['s'+i] = {
+                    mode: mode,
+                    t1: parseInt(document.getElementById(`s${i}t1`).value),
+                    t2: parseInt(document.getElementById(`s${i}t2`).value),
+                    msg: document.getElementById(`s${i}msg`).value,
+                    updatedAt: now // 자동 모드 계산을 위한 기준 시간
+                };
+            }
+            db.ref('metroLine1').set(data).then(() => alert("클라우드 전송 완료!"));
         }
     </script>
-</div>
-
-<button class="main-btn" onclick="publish()">설정 사항 전 노선 송출</button>
-
-<script>
-    // 자동 모드를 위한 내부 데이터
-    let autoData = {
-        s1: { t1: 3, t2: 8 },
-        s2: { t1: 5, t2: 10 },
-        s3: { t1: 1, t2: 6 }
-    };
-
-    function toggleMode(id) {
-        const isAuto = document.querySelector(`input[name="mode-s${id}"]:checked`).value === 'auto';
-        document.getElementById(`manual-s${id}`).style.display = isAuto ? 'none' : 'block';
-        document.getElementById(`auto-s${id}`).style.display = isAuto ? 'block' : 'none';
-        document.getElementById(`mode-badge-s${id}`).innerText = isAuto ? '자동 모드' : '수동 모드';
-        document.getElementById(`mode-badge-s${id}`).style.background = isAuto ? '#e3f2fd' : '#eee';
-    }
-
-    // 1분마다 시간을 줄이는 로직 (자동 모드용)
-    setInterval(() => {
-        for(let i=1; i<=3; i++) {
-            const key = 's' + i;
-            // 시간 감소
-            if(autoData[key].t1 > 0) {
-                autoData[key].t1--;
-            } else {
-                // 0분이 되면 1분간 '도착' 유지 후 2차 열차를 1차로 당김
-                autoData[key].t1 = autoData[key].t2;
-                autoData[key].t2 = autoData[key].t1 + 5; // 다음 열차는 5분 뒤 자동 생성
-            }
-            
-            // 화면 표시 업데이트
-            const autoDisplay = document.getElementById(`s${i}auto-val`);
-            if(autoDisplay) autoDisplay.innerText = autoData[key].t1;
-        }
-        // 자동 모드일 경우 즉시 전광판에 반영
-        publish(true); 
-    }, 60000); // 1분(60000ms) 주기
-
-    function publish(isSilent = false) {
-        const data = {};
-        for(let i=1; i<=3; i++) {
-            const mode = document.querySelector(`input[name="mode-s${i}"]:checked`).value;
-            if(mode === 'manual') {
-                data['s'+i] = {
-                    t1: document.getElementById(`s${i}t1`).value,
-                    t2: document.getElementById(`s${i}t2`).value,
-                    msg: document.getElementById(`s${i}msg`).value
-                };
-            } else {
-                data['s'+i] = {
-                    t1: autoData['s'+i].t1.toString(),
-                    t2: autoData['s'+i].t2.toString(),
-                    msg: document.getElementById(`s${i}msg`).value
-                };
-            }
-        }
-        localStorage.setItem('metroSIEL', JSON.stringify(data));
-        if(!isSilent) alert("송출 완료! 전 노선에 반영되었습니다.");
-    }
-</script>
 </body>
 </html>
