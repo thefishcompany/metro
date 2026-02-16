@@ -2,274 +2,102 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paris Metro SIEL - Station 1</title>
+    <title>Paris Metro SIEL - Station</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        /* 1. 디자인 레이아웃 및 폰트 설정 */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700;900&display=swap');
-
-        body {
-            background-color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        /* 전광판 본체 프레임 */
-        .siel-container {
-            width: 1100px;
-            height: 500px;
-            background: #000;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            border: 6px solid #1a1a1a;
-        }
-
-        /* 상단 흰색 바 (역 정보) */
-        .header-white-bar {
-            background: #f0f0f0;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            padding: 0 40px;
-            border-bottom: 2px solid #ccc;
-        }
-
-        .m-logo {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #1a1a1a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            font-weight: 900;
-            margin-right: 20px;
-        }
-
-        .line-number {
-            width: 70px;
-            height: 70px;
-            background: #ffbe00; /* 1호선 노란색 */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 45px;
-            font-weight: 900;
-            margin-right: 30px;
-        }
-
-        .station-name {
-            font-size: 60px;
-            font-weight: 900;
-            color: #1a1a1a;
-            text-transform: uppercase;
-        }
-
-        /* 메인 디스플레이 영역 */
-        .main-display {
-            display: flex;
-            flex: 1;
-        }
-
-        /* 왼쪽: 시간 정보 */
-        .left-times {
-            flex: 1.3;
-            padding: 30px 50px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .label-row {
-            display: flex;
-            color: #aaa;
-            font-size: 22px;
-            gap: 100px;
-            margin-bottom: 10px;
-        }
-
-        .time-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex: 1;
-            color: #ffeb3b; /* 밝은 노란색 텍스트 */
-            font-size: 180px;
-            font-weight: 900;
-        }
-
-        .vertical-divider {
-            width: 5px;
-            height: 140px;
-            background: #fff;
-            opacity: 0.8;
-        }
-
-        /* 오른쪽: 안내 정보창 (노란 박스) */
-        .right-info {
-            flex: 1;
-            background: #ffdb00;
-            margin: 15px;
-            border-radius: 5px;
-            padding: 20px;
-            color: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .info-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .mini-logos { display: flex; gap: 8px; }
-        .mini-m { width: 25px; height: 25px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; }
-        .mini-1 { width: 30px; height: 30px; background: #ffbe00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; border: 1px solid rgba(0,0,0,0.1); }
-
-        .digital-clock {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 8px 15px;
-            font-size: 32px;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        .info-body {
-            font-size: 26px;
-            line-height: 1.4;
-            font-weight: 700;
-            word-break: keep-all;
-        }
-
-        /* 하단 오렌지색 마감 바 */
-        .bottom-orange-bar {
-            height: 35px;
-            background: linear-gradient(to bottom, #e67e22, #d35400);
-            border-radius: 0 0 10px 10px;
-        }
-
-        /* 깜빡임 애니메이션 */
-        .blink {
-            animation: flash 1s steps(2, start) infinite;
-        }
-        @keyframes flash {
-            to { visibility: hidden; }
-        }
-
-        /* "도착" 텍스트 스타일 */
-        .arrive-text {
-            font-size: 80px;
-            letter-spacing: -2px;
-        }
+        /* 이전 디자인 CSS 동일 */
+        body { background: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Arial', sans-serif; }
+        .siel-board { width: 1000px; height: 450px; background: #000; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; border: 5px solid #1a1a1a; }
+        .top-bar { background: #f0f0f0; height: 100px; display: flex; align-items: center; padding: 0 30px; }
+        .line-1 { width: 60px; height: 60px; background: #ffbe00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 35px; margin-right: 20px; }
+        .station-name { font-size: 50px; font-weight: 900; color: #1a1a1a; }
+        .content { display: flex; flex: 1; }
+        .time-section { flex: 1.3; padding: 40px; color: #ffeb3b; font-size: 160px; font-weight: 900; display: flex; align-items: center; justify-content: space-between; }
+        .divider { width: 5px; height: 120px; background: #fff; opacity: 0.5; }
+        .info-section { flex: 1; background: #ffdb00; margin: 15px; border-radius: 5px; padding: 20px; color: #1a1a1a; font-size: 24px; font-weight: bold; }
+        .clock { background: #1a1a1a; color: #fff; padding: 5px 10px; float: right; border-radius: 5px; }
+        .blink { animation: blink 1s steps(2, start) infinite; }
+        @keyframes blink { to { visibility: hidden; } }
+        .arrive { font-size: 70px; }
     </style>
 </head>
 <body>
 
-<div class="siel-container">
-    <div class="header-white-bar">
-        <div class="m-logo">M</div>
-        <div class="line-number">1</div>
-        <div class="station-name" id="display-station-name">STATION 1</div>
+<div class="siel-board">
+    <div class="top-bar">
+        <div class="line-1">1</div>
+        <div class="station-name">STATION 1</div>
     </div>
-
-    <div class="main-display">
-        <div class="left-times">
-            <div class="label-row">
-                <span>1<sup>er</sup> métro</span>
-                <span>2<sup>e</sup> métro</span>
-            </div>
-            <div class="time-row">
-                <span id="time1">--</span>
-                <div class="vertical-divider"></div>
-                <span id="time2">--</span>
-            </div>
+    <div class="content">
+        <div class="time-section">
+            <span id="t1">--</span>
+            <div class="divider"></div>
+            <span id="t2">--</span>
         </div>
-
-        <div class="right-info">
-            <div class="info-top">
-                <div class="mini-logos">
-                    <div class="mini-m">M</div>
-                    <div class="mini-1">1</div>
-                </div>
-                <div class="digital-clock" id="live-clock">10:51</div>
-            </div>
-            <div class="info-body" id="info-message">
-                Information: Trafic normal sur l'ensemble de la ligne.
-            </div>
+        <div class="info-section">
+            <div class="clock" id="clock">00:00</div>
+            <p id="msg">연결 중...</p>
         </div>
     </div>
-
-    <div class="bottom-orange-bar"></div>
 </div>
 
 <script>
-    /**
-     * 설정 구역
-     * 각 역 파일마다 아래 두 값을 수정하세요.
-     */
-    const STATION_ID = 's1';      // 역 ID (s1, s2, s3)
-    const STATION_NAME = 'STATION 1'; // 화면에 표시될 역 이름
+    const STATION_ID = 's1'; // 역에 따라 s2, s3로 수정
 
-    document.getElementById('display-station-name').innerText = STATION_NAME;
+    // [필수] 관제센터와 동일한 Firebase 설정을 넣으세요!
+    const firebaseConfig = {
+            apiKey: "AIzaSyB0XGb9qUq7K4Z5SVUE6IQsh-UmXwMI25M",
+            databaseURL: "https://metro-dfaf8-default-rtdb.firebaseio.com",
+            projectId: "metro-dfaf8",
+        };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    // 1. 실시간 데이터 업데이트 함수
-    function updateStation() {
-        const rawData = localStorage.getItem('metroSIEL');
-        if (!rawData) return;
+    let serverData = null;
 
-        const data = JSON.parse(rawData);
-        const myData = data[STATION_ID];
+    // 데이터베이스 실시간 감시
+    db.ref('metroLine1/' + STATION_ID).on('value', (snapshot) => {
+        serverData = snapshot.val();
+        render();
+    });
 
-        if (myData) {
-            const t1 = myData.t1;
-            const t2 = myData.t2;
-            const msg = myData.msg;
+    function render() {
+        if (!serverData) return;
+        
+        let displayT1 = serverData.t1;
+        let displayT2 = serverData.t2;
 
-            // 1차 열차 표시 (0분일 때 ARRIVÉE 처리)
-            const t1Element = document.getElementById('time1');
-            if (t1 == "0") {
-                t1Element.innerText = "ARRIVÉE";
-                t1Element.classList.add('arrive-text', 'blink');
-            } else {
-                t1Element.innerText = t1;
-                t1Element.classList.remove('arrive-text', 'blink');
-            }
-
-            // 2차 열차 및 메시지 표시
-            document.getElementById('time2').innerText = t2;
-            document.getElementById('info-message').innerText = msg;
+        if (serverData.mode === 'auto') {
+            // 자동 모드: (현재시간 - 전송시간)만큼 분을 뺌
+            const diffMs = Date.now() - serverData.updatedAt;
+            const diffMin = Math.floor(diffMs / 60000);
+            
+            displayT1 = Math.max(0, serverData.t1 - diffMin);
+            displayT2 = Math.max(1, serverData.t2 - diffMin);
+            
+            // 만약 1차가 도착했다면 2차 열차를 보여주는 등의 로직은 
+            // 실제 운행 패턴에 맞춰 추가 가능합니다.
         }
+
+        const t1El = document.getElementById('t1');
+        if (displayT1 <= 0) {
+            t1El.innerText = "ARRIVÉE";
+            t1El.classList.add('blink', 'arrive');
+        } else {
+            t1El.innerText = displayT1;
+            t1El.classList.remove('blink', 'arrive');
+        }
+        document.getElementById('t2').innerText = displayT2;
+        document.getElementById('msg').innerText = serverData.msg;
     }
 
-    // 2. 실시간 시계 함수
-    function updateClock() {
+    // 시계 및 렌더링 주기 (초 단위로 화면 갱신)
+    setInterval(() => {
         const now = new Date();
-        const hh = String(now.getHours()).padStart(2, '0');
-        const mm = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('live-clock').innerText = `${hh}:${mm}`;
-    }
-
-    // 3. 이벤트 리스너 및 초기화
-    window.addEventListener('storage', updateStation); // 컨트롤러에서 데이터 변경 시 즉시 반영
-    setInterval(updateClock, 1000); // 1초마다 시계 업데이트
-
-    // 실행
-    updateStation();
-    updateClock();
+        document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        render(); // 자동 모드 시간을 실시간으로 갱신
+    }, 1000);
 </script>
-
 </body>
 </html>
