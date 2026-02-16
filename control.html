@@ -2,26 +2,29 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Metro SIEL Cloud Controller</title>
+    <title>Metro SIEL Cloud Controller - Advanced</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
+        :root { --ratp-yellow: #ffbe00; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; padding: 20px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .card { background: white; padding: 15px; border-radius: 12px; border-top: 10px solid #ffbe00; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .mode-sel { background: #eee; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
-        textarea { width: 95%; height: 50px; }
-        input[type="number"] { width: 50px; }
-        button { width: 100%; padding: 20px; background: #1a1a1a; color: #ffbe00; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; border: none; }
+        .card { background: white; padding: 15px; border-radius: 12px; border-top: 10px solid var(--ratp-yellow); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .setting-group { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; }
+        .setting-group label { display: inline-block; width: 140px; margin-bottom: 5px; }
+        input[type="number"], input[type="text"] { width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { width: 100%; height: 40px; margin-top: 5px; }
+        button { width: 100%; padding: 15px; background: #1a1a1a; color: var(--ratp-yellow); font-weight: bold; font-size: 1.1rem; border-radius: 8px; cursor: pointer; margin-top: 20px; border: none; }
+        h3 { margin: 0 0 10px 0; color: #333; }
     </style>
 </head>
 <body>
-    <h1>🚇 Ligne 1 - 클라우드 관제실</h1>
+    <h1>🚇 Ligne 1 - 정밀 관제실 (Firebase)</h1>
     <div class="grid" id="grid"></div>
-    <button onclick="publish()">전 노선 업데이트 송출 (Firebase)</button>
+    <button onclick="publish()">모든 설정 클라우드 송출</button>
 
     <script>
-        // [필수] 본인의 Firebase 설정으로 교체하세요!
+        // 본인의 Firebase 설정을 넣으세요
         const firebaseConfig = {
             apiKey: "AIzaSyB0XGb9qUq7K4Z5SVUE6IQsh-UmXwMI25M",
             databaseURL: "https://metro-dfaf8-default-rtdb.firebaseio.com",
@@ -33,13 +36,26 @@
         for(let i=1; i<=3; i++) {
             document.getElementById('grid').innerHTML += `
                 <div class="card">
-                    <h3>역 ${i}</h3>
-                    <div class="mode-sel">
+                    <h3>역 ${i} Control</h3>
+                    <div style="margin-bottom:10px;">
                         <label><input type="radio" name="m${i}" value="manual" checked> 수동</label>
                         <label><input type="radio" name="m${i}" value="auto"> 자동</label>
                     </div>
-                    <p>1차: <input type="number" id="s${i}t1" value="2">분 | 2차: <input type="number" id="s${i}t2" value="7">분</p>
-                    <textarea id="s${i}msg">Trafic normal.</textarea>
+                    
+                    <div class="setting-group">
+                        <strong>기본 설정 (분 단위)</strong><br>
+                        <label>1차 열차 남은시간:</label> <input type="number" id="s${i}t1" value="${i*2}"><br>
+                        <label>2차 열차 남은시간:</label> <input type="number" id="s${i}t2" value="${i*2+5}"><br>
+                    </div>
+
+                    <div class="setting-group" style="border-left: 4px solid #e67e22;">
+                        <strong>자동 모드 정밀 설정</strong><br>
+                        <label>탑승 시간(ARRIVÉE):</label> <input type="number" id="s${i}dwell" value="1"> 분<br>
+                        <label>다음 역 이동시간:</label> <input type="number" id="s${i}travel" value="2"> 분
+                    </div>
+
+                    <p>공지사항:</p>
+                    <textarea id="s${i}msg">Trafic normal sur la ligne 1.</textarea>
                 </div>
             `;
         }
@@ -53,11 +69,13 @@
                     mode: mode,
                     t1: parseInt(document.getElementById(`s${i}t1`).value),
                     t2: parseInt(document.getElementById(`s${i}t2`).value),
+                    dwellTime: parseInt(document.getElementById(`s${i}dwell`).value), // ARRIVÉE 유지 시간
+                    travelTime: parseInt(document.getElementById(`s${i}travel`).value), // 이동 시간
                     msg: document.getElementById(`s${i}msg`).value,
-                    updatedAt: now // 자동 모드 계산을 위한 기준 시간
+                    updatedAt: now
                 };
             }
-            db.ref('metroLine1').set(data).then(() => alert("클라우드 전송 완료!"));
+            db.ref('metroLine1').set(data).then(() => alert("설정이 클라우드에 반영되었습니다!"));
         }
     </script>
 </body>
